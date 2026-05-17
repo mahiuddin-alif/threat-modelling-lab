@@ -1,34 +1,80 @@
-# Web Server Log Investigation Lab
+# Advanced Apache Access Log Analysis Lab
 
-## SOC Training - Apache Access Log Analysis
+<div align="center">
 
-**Level:** Beginner to Intermediate  
-**Environment:** Linux / Kali Linux / Ubuntu  
-**Tools Used:** grep, awk, sed, sort, uniq, wc  
-**Objective:** Learn how to investigate Apache access logs and identify suspicious activities.
+## SOC Analyst Practical Lab
 
----
+### Web Server Monitoring & Threat Detection
 
-# Introduction
+![Linux](https://img.shields.io/badge/Platform-Linux-blue)
+![Apache](https://img.shields.io/badge/Web%20Server-Apache-red)
+![SOC](https://img.shields.io/badge/SOC-Log%20Analysis-green)
+![Difficulty](https://img.shields.io/badge/Difficulty-Beginner%20to%20Intermediate-orange)
 
-Web servers generate logs that record every request sent by users, browsers, bots, and attackers.  
-Security analysts use these logs to:
-
-- Monitor website traffic
-- Detect attacks
-- Investigate incidents
-- Identify malicious IP addresses
-- Analyze suspicious requests
-
-This lab demonstrates how to analyze Apache access logs using Linux command-line tools.
+</div>
 
 ---
 
-# Understanding Apache Log Structure
+# Table of Contents
 
-Apache commonly uses the **Combined Log Format**.
+1. Introduction
+2. Lab Objectives
+3. Apache Log Fundamentals
+4. Understanding Log Fields
+5. Lab Environment Setup
+6. Basic Log Analysis
+7. Intermediate Security Analysis
+8. Advanced Threat Hunting
+9. Data Extraction & Transformation
+10. Incident Investigation
+11. Reporting & Documentation
+12. Deliverables
+13. Bonus Tasks
+14. Learning Outcomes
+15. References
 
-## Log Format
+---
+
+# 1. Introduction
+
+Web servers continuously generate logs containing information about:
+
+- Website visitors
+- Browsers and devices
+- Requested resources
+- Server responses
+- Errors and failures
+- Suspicious activities
+- Automated scanners
+- Attack attempts
+
+Security analysts use these logs to investigate incidents, identify attackers, monitor traffic patterns, and improve organizational security posture.
+
+This practical lab demonstrates how to investigate Apache access logs using standard Linux command-line tools.
+
+---
+
+# 2. Lab Objectives
+
+After completing this lab, you will be able to:
+
+- Understand Apache log structures
+- Extract useful information from logs
+- Detect suspicious web traffic
+- Identify reconnaissance activities
+- Detect common web attacks
+- Analyze HTTP response codes
+- Investigate attacker behavior
+- Generate professional investigation reports
+- Use Linux text-processing utilities efficiently
+
+---
+
+# 3. Apache Access Log Fundamentals
+
+Apache HTTP Server stores client requests in access logs.
+
+The default Apache combined log format is:
 
 ```apache
 LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
@@ -36,43 +82,45 @@ LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combine
 
 ---
 
-## Sample Log Entry
+# Example Log Entry
 
 ```text
-203.0.113.25 - - [12/Feb/2026:09:15:42 +0000] "GET /dashboard HTTP/1.1" 200 4521 "-" "Mozilla/5.0"
+203.0.113.25 - - [15/May/2026:14:23:51 +0000] "GET /login.php HTTP/1.1" 200 5321 "https://example.com" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
 ```
 
 ---
 
-# Log Field Explanation
+# 4. Understanding Apache Log Fields
 
-| Field | Position | Description |
-|---|---|---|
-| Client IP | `$1` | Source IP address |
-| Identity | `$2` | Remote identity |
-| Username | `$3` | Authenticated user |
-| Timestamp | `$4` | Date & time |
-| Method | `$6` | HTTP request method |
-| URL | `$7` | Requested resource |
-| Protocol | `$8` | HTTP version |
-| Status Code | `$9` | Server response code |
-| Response Size | `$10` | Bytes transferred |
-| User-Agent | `$12+` | Browser or tool |
+| Position | Field Name | Description | Example |
+|---|---|---|---|
+| `$1` | IP Address | Client source IP | `203.0.113.25` |
+| `$2` | Identity | RFC 1413 identity | `-` |
+| `$3` | Username | Authenticated user | `admin` |
+| `$4` | Timestamp | Request time | `[15/May/2026:14:23:51 +0000]` |
+| `$5-$7` | Request | Method + URL + Protocol | `"GET /login.php HTTP/1.1"` |
+| `$8` | Protocol | HTTP version | `HTTP/1.1"` |
+| `$9` | Status Code | Server response | `200` |
+| `$10` | Response Size | Bytes sent | `5321` |
+| `$11` | Referer | Referring URL | `"https://example.com"` |
+| `$12+` | User-Agent | Browser/tool info | `"Mozilla/5.0"` |
 
 ---
 
-# Lab Setup
+# 5. Lab Environment Setup
 
-## Create Workspace
+---
+
+# Step 1 — Create Working Directory
 
 ```bash
-mkdir -p ~/security-labs/apache-analysis
-cd ~/security-labs/apache-analysis
+mkdir -p ~/soc-training/apache-lab
+cd ~/soc-training/apache-lab
 ```
 
 ---
 
-## Download Sample Log File
+# Step 2 — Download Sample Access Log
 
 ```bash
 wget https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs -O access.log
@@ -80,24 +128,41 @@ wget https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20F
 
 ---
 
-## Verify File
+# Step 3 — Verify File
 
 ```bash
 ls -lh access.log
+```
+
+---
+
+# Step 4 — Preview Log Entries
+
+```bash
 head -5 access.log
 ```
 
 ---
 
-# Part 1 — Basic Log Analysis
+# Step 5 — Count Total Lines
+
+```bash
+wc -l access.log
+```
+
+Each line represents one HTTP request.
 
 ---
 
-# Exercise 1: Count Total Requests
+# 6. Basic Log Analysis
+
+---
+
+# Exercise 1 — Count Total Requests
 
 ## Objective
 
-Find the total number of requests inside the log file.
+Determine how many requests were recorded.
 
 ## Command
 
@@ -105,17 +170,31 @@ Find the total number of requests inside the log file.
 wc -l access.log
 ```
 
-## Explanation
+---
 
-- `wc` = word count utility
-- `-l` = count lines
-- Every line represents one web request
+# Explanation
+
+| Command | Purpose |
+|---|---|
+| `wc` | Word count utility |
+| `-l` | Count lines only |
 
 ---
 
-# Exercise 2: Extract Client IP Addresses
+# Why This Matters
 
-## Show First 10 IPs
+High traffic volume may indicate:
+
+- Legitimate user activity
+- DDoS attacks
+- Automated scraping
+- Bot traffic
+
+---
+
+# Exercise 2 — Extract Client IP Addresses
+
+## Display First 10 IP Addresses
 
 ```bash
 awk '{print $1}' access.log | head
@@ -123,7 +202,17 @@ awk '{print $1}' access.log | head
 
 ---
 
-## Count Unique IP Addresses
+# Explanation
+
+| Component | Purpose |
+|---|---|
+| `awk` | Text processing utility |
+| `{print $1}` | Print first column |
+| `head` | Show first lines |
+
+---
+
+# Count Unique Visitors
 
 ```bash
 awk '{print $1}' access.log | sort -u | wc -l
@@ -131,19 +220,18 @@ awk '{print $1}' access.log | sort -u | wc -l
 
 ---
 
-## Explanation
+# Security Importance
 
-- `awk '{print $1}'` extracts IP addresses
-- `sort -u` sorts and removes duplicates
-- `wc -l` counts unique entries
+Unique IP analysis helps identify:
+
+- Number of visitors
+- Distributed attacks
+- Botnets
+- Scanning infrastructure
 
 ---
 
-# Exercise 3: Detect Top Active IPs
-
-## Objective
-
-Identify the most active hosts communicating with the server.
+# Exercise 3 — Identify Top Active IPs
 
 ## Command
 
@@ -153,20 +241,42 @@ awk '{print $1}' access.log | sort | uniq -c | sort -nr | head -10
 
 ---
 
-## Security Insight
+# Detailed Breakdown
 
-High request counts may indicate:
-
-- Automated bots
-- Vulnerability scanners
-- Brute-force attempts
-- DDoS activity
+| Command | Function |
+|---|---|
+| `awk '{print $1}'` | Extract IP addresses |
+| `sort` | Sort entries |
+| `uniq -c` | Count duplicates |
+| `sort -nr` | Numerical reverse sorting |
+| `head -10` | Top 10 results |
 
 ---
 
-# Exercise 4: Analyze HTTP Response Codes
+# Example Output
 
-## Display All Status Codes
+```text
+523 192.168.1.50
+487 10.0.0.22
+412 172.16.5.14
+```
+
+---
+
+# Analyst Notes
+
+IPs with excessive requests may indicate:
+
+- Web crawlers
+- Penetration testing tools
+- Brute-force attacks
+- Malicious bots
+
+---
+
+# Exercise 4 — Analyze HTTP Status Codes
+
+## Command
 
 ```bash
 awk '{print $9}' access.log | sort | uniq -c | sort -nr
@@ -174,7 +284,31 @@ awk '{print $9}' access.log | sort | uniq -c | sort -nr
 
 ---
 
-## Count 404 Errors
+# Common Status Codes
+
+| Code | Meaning |
+|---|---|
+| 200 | Successful request |
+| 301 | Redirect |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 500 | Internal Server Error |
+
+---
+
+# Security Relevance
+
+Large numbers of:
+
+- `404` → scanning attempts
+- `403` → blocked access attempts
+- `500` → server issues/exploitation
+
+---
+
+# Exercise 5 — Investigate 404 Errors
+
+## Count 404 Responses
 
 ```bash
 awk '$9 == 404' access.log | wc -l
@@ -182,45 +316,45 @@ awk '$9 == 404' access.log | wc -l
 
 ---
 
-## Why 404 Errors Matter
-
-Frequent 404 requests may indicate:
-
-- Directory scanning
-- Attack reconnaissance
-- Broken links
-- Automated exploit attempts
-
----
-
-# Exercise 5: Most Requested Missing Pages
-
-## Command
+# Most Requested Missing Resources
 
 ```bash
-awk '$9 == 404 {print $7}' access.log | sort | uniq -c | sort -nr | head -5
+awk '$9 == 404 {print $7}' access.log | sort | uniq -c | sort -nr | head -10
 ```
 
 ---
 
-## Possible Indicators
+# Example Output
 
-| URL Pattern | Possible Threat |
+```text
+45 /admin/
+32 /.env
+29 /backup.zip
+24 /phpmyadmin/
+```
+
+---
+
+# Threat Analysis
+
+These paths often indicate attackers searching for:
+
+| URL | Purpose |
 |---|---|
-| `/admin/` | Admin panel scanning |
-| `/phpmyadmin/` | Database access attempt |
-| `/.env` | Environment file exposure |
-| `/backup.zip` | Backup file hunting |
+| `/admin/` | Admin panels |
+| `/.env` | Environment credentials |
+| `/backup.zip` | Backup leaks |
+| `/phpmyadmin/` | Database access |
 
 ---
 
-# Part 2 — Threat Hunting with grep
+# 7. Intermediate Security Analysis
 
 ---
 
-# Exercise 6: Detect Vulnerability Scanners
+# Exercise 6 — Detect Vulnerability Scanners
 
-## Find Nikto Scanner Requests
+## Nikto Detection
 
 ```bash
 grep -i "nikto" access.log
@@ -228,7 +362,7 @@ grep -i "nikto" access.log
 
 ---
 
-## Count Nikto Requests
+# Count Scanner Requests
 
 ```bash
 grep -i "nikto" access.log | wc -l
@@ -236,7 +370,7 @@ grep -i "nikto" access.log | wc -l
 
 ---
 
-## Extract Attacker IPs
+# Extract Scanner IPs
 
 ```bash
 grep -i "nikto" access.log | awk '{print $1}' | sort -u
@@ -244,17 +378,42 @@ grep -i "nikto" access.log | awk '{print $1}' | sort -u
 
 ---
 
-# Exercise 7: Search for SQL Injection Attempts
+# Why This Matters
 
-## Command
+Nikto is a vulnerability scanner commonly used for:
+
+- Web reconnaissance
+- Vulnerability discovery
+- Security assessments
+
+Unrecognized scanning may indicate hostile activity.
+
+---
+
+# Exercise 7 — Detect SQL Injection Attempts
+
+---
+
+# Common SQL Injection Keywords
+
+| Keyword | Purpose |
+|---|---|
+| UNION | Extract database data |
+| SELECT | Query database |
+| DROP | Delete tables |
+| INSERT | Inject records |
+
+---
+
+# Search for SQL Injection Patterns
 
 ```bash
-grep -iE "(union|select|drop|insert|update)" access.log
+grep -iE "(union|select|insert|update|drop|exec)" access.log
 ```
 
 ---
 
-## Count SQL Injection Indicators
+# Count SQL Injection Attempts
 
 ```bash
 grep -iE "(union|select|drop)" access.log | wc -l
@@ -262,7 +421,7 @@ grep -iE "(union|select|drop)" access.log | wc -l
 
 ---
 
-## Extract Source IPs
+# Extract Attacker IPs
 
 ```bash
 grep -iE "(union|select|drop)" access.log | awk '{print $1}' | sort | uniq -c | sort -nr
@@ -270,9 +429,41 @@ grep -iE "(union|select|drop)" access.log | awk '{print $1}' | sort | uniq -c | 
 
 ---
 
-# Exercise 8: Detect Cross-Site Scripting (XSS)
+# Example Malicious Request
 
-## Command
+```text
+GET /index.php?id=1 UNION SELECT username,password FROM users
+```
+
+---
+
+# Security Impact
+
+Successful SQL injection may lead to:
+
+- Database compromise
+- Credential theft
+- Data leakage
+- Remote code execution
+
+---
+
+# Exercise 8 — Detect Cross-Site Scripting (XSS)
+
+---
+
+# Common XSS Patterns
+
+| Pattern | Meaning |
+|---|---|
+| `<script>` | Script injection |
+| `javascript:` | JS URI scheme |
+| `onerror=` | Event injection |
+| `alert()` | Test payload |
+
+---
+
+# Detect XSS Attempts
 
 ```bash
 grep -iE "(<script|javascript:|onerror=|alert\()" access.log
@@ -280,7 +471,7 @@ grep -iE "(<script|javascript:|onerror=|alert\()" access.log
 
 ---
 
-## Count XSS Attempts
+# Count XSS Attempts
 
 ```bash
 grep -iE "(<script|javascript:|onerror=)" access.log | wc -l
@@ -288,9 +479,28 @@ grep -iE "(<script|javascript:|onerror=)" access.log | wc -l
 
 ---
 
-# Exercise 9: Detect Directory Traversal
+# Identify Source IPs
 
-## Command
+```bash
+grep -iE "(<script|javascript:|onerror=)" access.log | awk '{print $1}' | sort | uniq -c | sort -nr
+```
+
+---
+
+# Exercise 9 — Detect Directory Traversal
+
+---
+
+# Common Traversal Patterns
+
+| Pattern | Example |
+|---|---|
+| `../` | Linux traversal |
+| `..%2F` | URL encoded traversal |
+
+---
+
+# Detection Command
 
 ```bash
 grep -E "(\.\./|\.\.%2[Ff])" access.log
@@ -298,7 +508,7 @@ grep -E "(\.\./|\.\.%2[Ff])" access.log
 
 ---
 
-## Count Traversal Attempts
+# Count Attempts
 
 ```bash
 grep -E "(\.\./|\.\.%2[Ff])" access.log | wc -l
@@ -306,11 +516,22 @@ grep -E "(\.\./|\.\.%2[Ff])" access.log | wc -l
 
 ---
 
-# Part 3 — Advanced Log Analysis
+# Potential Targets
+
+Attackers use traversal to access:
+
+- `/etc/passwd`
+- Configuration files
+- Application secrets
+- Backup files
 
 ---
 
-# Exercise 10: Traffic Analysis by Hour
+# 8. Advanced Threat Hunting
+
+---
+
+# Exercise 10 — Analyze Traffic by Hour
 
 ## Command
 
@@ -320,13 +541,25 @@ awk '{print $4}' access.log | cut -d: -f2 | sort | uniq -c | sort -nr
 
 ---
 
-## Purpose
+# Purpose
 
-Detect unusual traffic spikes or off-hour activity.
+Identify unusual activity spikes.
 
 ---
 
-# Exercise 11: HTTP Method Distribution
+# Investigation Clues
+
+Traffic spikes during:
+
+- Midnight
+- Early morning
+- Weekends
+
+may indicate automated attacks.
+
+---
+
+# Exercise 11 — Analyze HTTP Methods
 
 ## Command
 
@@ -336,21 +569,32 @@ awk '{print $6}' access.log | tr -d '"' | sort | uniq -c | sort -nr
 
 ---
 
-## Security Considerations
+# Common Methods
 
-Unexpected methods like:
-
-- PUT
-- DELETE
-- TRACE
-
-may indicate exploitation attempts.
+| Method | Purpose |
+|---|---|
+| GET | Retrieve resource |
+| POST | Submit data |
+| PUT | Upload content |
+| DELETE | Remove content |
 
 ---
 
-# Exercise 12: Analyze POST Requests
+# Security Concern
 
-## Extract POST Request IPs
+Unexpected methods may indicate:
+
+- File uploads
+- Web shell deployment
+- API abuse
+
+---
+
+# Exercise 12 — Investigate POST Requests
+
+---
+
+# Extract POST Request IPs
 
 ```bash
 awk '$6 == "\"POST"' access.log | awk '{print $1}' | sort -u
@@ -358,17 +602,32 @@ awk '$6 == "\"POST"' access.log | awk '{print $1}' | sort -u
 
 ---
 
-## Detailed POST Activity
+# Detailed POST Activity
 
 ```bash
-awk '$6 == "\"POST"' access.log | awk '{print $1, $7, $9}' | head
+awk '$6 == "\"POST"' access.log | awk '{print $1, $7, $9}' | head -20
 ```
 
 ---
 
-# Exercise 13: Measure Bandwidth Usage
+# Why POST Matters
 
-## Total Data Transferred
+POST requests often involve:
+
+- Authentication
+- Form submissions
+- File uploads
+- API activity
+
+Attackers frequently abuse POST requests.
+
+---
+
+# Exercise 13 — Bandwidth Usage Analysis
+
+---
+
+# Calculate Total Bandwidth
 
 ```bash
 awk '{sum += $10} END {print sum/1024/1024 " MB"}' access.log
@@ -376,21 +635,30 @@ awk '{sum += $10} END {print sum/1024/1024 " MB"}' access.log
 
 ---
 
-## Highest Bandwidth Consumers
+# Top Bandwidth Consumers
 
 ```bash
-awk '{traffic[$1] += $10} END {for (ip in traffic) print ip, traffic[ip]/1024/1024 " MB"}' access.log | sort -k2 -nr | head
+awk '{bytes[$1] += $10} END {for (ip in bytes) print ip, bytes[ip]/1024/1024 " MB"}' access.log | sort -k2 -nr | head
 ```
 
 ---
 
-# Part 4 — Data Transformation
+# Investigation Importance
+
+High bandwidth consumption may indicate:
+
+- File downloads
+- Data exfiltration
+- Media streaming
+- DoS attacks
 
 ---
 
-# Exercise 14: Export Unique IP Addresses
+# 9. Data Extraction & Transformation
 
-## Command
+---
+
+# Exercise 14 — Export Unique IPs
 
 ```bash
 awk '{print $1}' access.log | sort -u > unique_ips.txt
@@ -398,19 +666,17 @@ awk '{print $1}' access.log | sort -u > unique_ips.txt
 
 ---
 
-# Exercise 15: Mask IP Addresses
+# Exercise 15 — Anonymize IP Addresses
 
-## Command
+## Privacy Protection
 
 ```bash
-sed 's/\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}/\1XXX/' access.log | head
+sed 's/\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}/\1XXX/' access.log
 ```
 
 ---
 
-# Exercise 16: Extract Requested URLs
-
-## Command
+# Exercise 16 — Export Requested URLs
 
 ```bash
 awk '{print $7}' access.log | sort -u > urls.txt
@@ -418,37 +684,73 @@ awk '{print $7}' access.log | sort -u > urls.txt
 
 ---
 
-# Exercise 17: Extract Dynamic Pages
-
-## Command
+# Exercise 17 — Extract Dynamic Web Pages
 
 ```bash
-awk '{print $7}' access.log | grep -E "\.(php|jsp|asp)$"
+awk '{print $7}' access.log | grep -E "\.(php|asp|jsp)$"
 ```
 
 ---
 
-# Final Investigation Report
+# 10. Incident Investigation Scenario
 
-Create a file named:
+---
+
+# Scenario
+
+The organization suspects:
+
+- Web scanning activity
+- SQL injection attempts
+- Unauthorized access attempts
+
+Your task is to:
+
+1. Identify suspicious IP addresses
+2. Detect malicious payloads
+3. Determine attack types
+4. Recommend defensive actions
+
+---
+
+# Investigation Questions
+
+- Which IP generated the highest traffic?
+- Were SQL injection attempts successful?
+- Are there signs of automated scanning?
+- What URLs were targeted most?
+- Are attackers using encoded payloads?
+
+---
+
+# 11. Final Investigation Report
+
+Create:
 
 ```text
-Apache-Investigation-Report.md
+Advanced-Apache-Investigation-Report.md
 ```
 
 ---
 
-# Report Template
+# Suggested Report Structure
 
 ```md
-# Apache Investigation Report
+# Apache Access Log Investigation Report
 
 ## Analyst Information
 
 - Analyst Name:
-- Analysis Date:
+- Investigation Date:
+- Target Server:
 - Log Source:
-- Investigation Scope:
+- Analysis Scope:
+
+---
+
+# Executive Summary
+
+[Brief overview of findings]
 
 ---
 
@@ -474,7 +776,7 @@ awk '{print $1}' access.log | sort -u | wc -l
 
 ---
 
-# HTTP Status Code Breakdown
+# HTTP Status Code Distribution
 
 [paste output]
 
@@ -484,102 +786,121 @@ awk '{print $1}' access.log | sort -u | wc -l
 
 ## Vulnerability Scanning
 
-- Nikto requests:
-- Scanner IPs:
+- Total Nikto requests:
+- Source IPs:
+- Targeted resources:
+
+---
 
 ## SQL Injection Attempts
 
 - Total attempts:
-- Attacking IPs:
+- Attacker IPs:
+- Sample payloads:
+
+---
 
 ## XSS Attempts
 
 - Total attempts:
-
-## Directory Traversal
-
-- Total attempts:
+- Affected URLs:
 
 ---
 
-# Suspicious IP Addresses
+## Directory Traversal Attempts
 
-| IP Address | Suspicious Activity |
+- Total attempts:
+- Source IPs:
+
+---
+
+# High-Risk IP Addresses
+
+| IP Address | Suspicious Behavior |
 |---|---|
 | x.x.x.x | SQL Injection |
-| x.x.x.x | Scanner Activity |
+| x.x.x.x | Directory Traversal |
 
 ---
 
 # Recommendations
 
 - Block malicious IPs
-- Enable Web Application Firewall
-- Monitor repeated failed requests
-- Patch vulnerable services
+- Deploy WAF rules
+- Enable rate limiting
+- Patch vulnerable applications
+- Improve logging visibility
 
 ---
 
 # Conclusion
 
-[Write your final findings]
+[Final assessment]
 
 ```
 
 ---
 
-# Deliverables
+# 12. Deliverables
 
-Submit the following files:
+Submit the following:
 
-1. `Apache-Investigation-Report.md`
-2. `unique_ips.txt`
-3. `urls.txt`
-4. `suspicious_ips.txt`
-
----
-
-# Bonus Challenges
-
-- Create a bash script to automate the analysis
-- Generate charts using gnuplot
-- Analyze multiple log files together
-- Build SIEM detection rules
-- Create custom alerting scripts
+| File | Description |
+|---|---|
+| `Advanced-Apache-Investigation-Report.md` | Complete investigation report |
+| `unique_ips.txt` | Unique visitors |
+| `urls.txt` | Requested URLs |
+| `suspicious_ips.txt` | Malicious IP list |
 
 ---
 
-# Helpful Resources
+# 13. Bonus Challenges
 
-- Apache Documentation
+- Automate analysis using Bash scripting
+- Create SIEM detection rules
+- Visualize traffic patterns
+- Correlate logs from multiple servers
+- Detect brute-force authentication attempts
+- Build custom IOC lists
+
+---
+
+# 14. Learning Outcomes
+
+By completing this lab, you learned how to:
+
+- Investigate Apache logs
+- Detect common web attacks
+- Analyze malicious traffic
+- Use Linux forensic commands
+- Produce SOC investigation reports
+- Identify Indicators of Compromise (IOCs)
+
+---
+
+# 15. Recommended References
+
+- Apache HTTP Documentation
 - OWASP Top 10
+- MITRE ATT&CK Framework
 - GNU grep Manual
-- GNU awk Manual
-- Linux Command Reference
+- GNU awk Documentation
+- Linux Command Line Guide
 
 ---
 
 # Estimated Completion Time
 
-**2 - 3 Hours**
+**3 — 4 Hours**
 
 ---
 
-# Learning Outcomes
+# Difficulty Level
 
-After completing this lab, you will be able to:
-
-- Analyze Apache access logs
-- Detect common web attacks
-- Identify suspicious IP addresses
-- Use grep, awk, sed efficiently
-- Create professional SOC investigation reports
+**Beginner → Intermediate**
 
 ---
 
 # Author
 
-Cyber Security Log Analysis Practice Lab
-
-````
-
+Cyber Security & SOC Training Lab
