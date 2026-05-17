@@ -1,4 +1,4 @@
-# Ubuntu Setup Guide (Simple & Basic)
+# Ubuntu Setup Guide
 
 ## What is Ubuntu?
 Ubuntu is a popular Linux operating system that is free, secure, and beginner-friendly.
