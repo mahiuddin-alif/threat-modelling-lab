@@ -1,4 +1,3 @@
-````md
 # How to Connect PuTTY to Kali Linux
 
 This guide explains how to connect to a Kali Linux machine using PuTTY from Windows.
