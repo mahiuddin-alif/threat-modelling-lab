@@ -1,53 +1,57 @@
-# Ubuntu Setup Using VirtualBox 
+# Ubuntu 22.04 LTS Server Setup Using VirtualBox
 
-## What is VirtualBox?
-VirtualBox is a free virtualization software that allows you to run another operating system inside your current OS.
+## What is Ubuntu Server?
+Ubuntu Server is a lightweight Linux operating system mainly used for:
 
-Example:
-- Run Ubuntu inside Windows
-- Run Linux without deleting Windows
+- Web servers
+- Databases
+- Cloud computing
+- Networking
+- Development environments
+
+Unlike Ubuntu Desktop, it does not have a graphical interface by default.
 
 ---
 
 # Requirements
 
-- 8 GB RAM recommended
-- 25 GB free storage
-- Stable internet connection
-- VirtualBox software
-- Ubuntu ISO file
+- VirtualBox installed
+- Ubuntu 22.04 LTS Server ISO
+- Minimum 4 GB RAM
+- 20 GB free storage
 
 ---
 
 # Step 1: Download VirtualBox
 
-Download from the official website:
+Official Website:
 
 https://www.virtualbox.org/
 
-Install it like normal software.
+Install VirtualBox normally.
 
 ---
 
-# Step 2: Download Ubuntu ISO
+# Step 2: Download Ubuntu 22.04 LTS Server ISO
 
-Download Ubuntu Desktop ISO:
+Official Download Link:
 
-https://ubuntu.com/download/desktop
+https://ubuntu.com/download/server
 
-Recommended:
-- Ubuntu LTS version
+Download:
+- Ubuntu Server 22.04 LTS
 
 ---
 
-# Step 3: Create a New Virtual Machine
+# Step 3: Create New Virtual Machine
 
 1. Open VirtualBox
 2. Click **New**
-3. Enter:
-   - Name: Ubuntu
-   - Type: Linux
-   - Version: Ubuntu (64-bit)
+
+### Enter:
+- Name: Ubuntu Server 22.04
+- Type: Linux
+- Version: Ubuntu (64-bit)
 
 Click **Next**
 
@@ -56,8 +60,8 @@ Click **Next**
 # Step 4: Allocate RAM
 
 Recommended:
-- Minimum: 4096 MB (4 GB)
-- Better Performance: 8192 MB (8 GB)
+- Minimum: 2048 MB
+- Better: 4096 MB
 
 Click **Next**
 
@@ -74,137 +78,192 @@ Click **Next**
 
 Click **Next**
 
-### Storage Type:
+### Storage:
 - Dynamically allocated
 
 Click **Next**
 
 ### Disk Size:
-- Recommended: 25 GB or more
+- 20 GB or more
 
 Click **Create**
 
 ---
 
-# Step 6: Attach Ubuntu ISO
+# Step 6: Attach Ubuntu Server ISO
 
-1. Select your Ubuntu VM
+1. Select VM
 2. Click **Settings**
 3. Go to **Storage**
-4. Under Controller IDE/SATA:
-   - Click Empty
-   - Click CD icon
-   - Choose Ubuntu ISO file
+4. Select **Empty**
+5. Click CD icon
+6. Choose Ubuntu Server ISO file
 
 Click **OK**
 
 ---
 
-# Step 7: Start Ubuntu VM
+# Step 7: Start the VM
 
-1. Select Ubuntu VM
+1. Select VM
 2. Click **Start**
 
-Ubuntu installer will boot.
+Ubuntu Server installer will boot.
 
 ---
 
-# Step 8: Install Ubuntu
+# Step 8: Select Language
 
-1. Select **Install Ubuntu**
-2. Choose language
-3. Select keyboard layout
-4. Connect internet (optional)
+Choose your preferred language.
+
+Example:
+- English
+
+Press **Enter**
 
 ---
 
-# Step 9: Installation Type
+# Step 9: Installer Options
 
-Choose:
+### Keyboard Layout
+Choose keyboard layout.
 
-- **Erase disk and install Ubuntu**
+Example:
+- English (US)
+
+---
+
+# Step 10: Network Configuration
+
+Ubuntu usually detects network automatically.
+
+Select:
+- Done
+
+---
+
+# Step 11: Configure Proxy
+
+If you do not use proxy:
+- Leave empty
+- Select **Done**
+
+---
+
+# Step 12: Configure Ubuntu Archive Mirror
+
+Default mirror is fine.
+
+Select:
+- Done
+
+---
+
+# Step 13: Storage Configuration
+
+Select:
+
+- **Use an entire disk**
 
 Do not worry:
-- It only erases the virtual disk
-- Your real Windows files remain safe
+- Only the virtual disk is affected
 
-Click **Install Now**
+Select:
+- Done → Continue
 
 ---
 
-# Step 10: Create User Account
+# Step 14: Create User
 
 Enter:
 - Your Name
+- Server Name
 - Username
 - Password
 
-Click **Continue**
-
----
-
-# Step 11: Finish Installation
-
-1. Wait for installation
-2. Click **Restart Now**
-3. Press Enter if needed
-
-Ubuntu setup is complete.
-
----
-
-# Step 12: Install VirtualBox Guest Additions
-
-Guest Additions improve:
-- Screen resolution
-- Fullscreen support
-- Mouse integration
-- Clipboard sharing
-
-## Install Steps
-
-From VirtualBox menu:
+Example:
 
 ```text
-Devices → Insert Guest Additions CD Image
+Name: Alif
+Server Name: ubuntu-server
+Username: alif
+Password: ********
 ```
 
-Then run in Ubuntu terminal:
-
-```bash
-sudo apt update
-sudo apt install build-essential dkms linux-headers-$(uname -r)
-```
-
-Mount and install Guest Additions:
-
-```bash
-sudo mkdir /media/cdrom
-sudo mount /dev/cdrom /media/cdrom
-sudo /media/cdrom/VBoxLinuxAdditions.run
-```
-
-Restart Ubuntu:
-
-```bash
-sudo reboot
-```
+Select:
+- Done
 
 ---
 
-# Useful Ubuntu Commands
+# Step 15: Install OpenSSH Server
+
+IMPORTANT:
+
+Check:
+- Install OpenSSH Server
+
+This allows remote SSH access.
+
+Select:
+- Done
+
+---
+
+# Step 16: Featured Server Snaps
+
+Optional:
+- Docker
+- Kubernetes
+- PostgreSQL
+
+You can skip for now.
+
+Select:
+- Done
+
+---
+
+# Step 17: Finish Installation
+
+Wait for installation.
+
+Then select:
+- Reboot Now
+
+Press Enter if installer asks to remove installation media.
+
+---
+
+# Step 18: Login to Ubuntu Server
+
+Enter:
+- Username
+- Password
+
+You will see terminal like:
+
+```bash
+alif@ubuntu-server:~$
+```
+
+Ubuntu Server setup is complete.
+
+---
+
+# Basic Linux Commands
 
 ```bash
 pwd       # Show current directory
 ls        # List files
 cd        # Change directory
 mkdir     # Create folder
+rm        # Remove file
 clear     # Clear terminal
 ```
 
 ---
 
-# Update Ubuntu
+# Update Ubuntu Server
 
 ```bash
 sudo apt update
@@ -213,30 +272,78 @@ sudo apt upgrade
 
 ---
 
-# Install Basic Software
+# Install Useful Packages
 
 ```bash
+sudo apt install net-tools
 sudo apt install git
-sudo apt install vlc
+sudo apt install curl
+```
+
+---
+
+# Check IP Address
+
+```bash
+ip a
+```
+
+or
+
+```bash
+hostname -I
+```
+
+---
+
+# Shutdown or Restart
+
+```bash
+sudo shutdown now
+sudo reboot
+```
+
+---
+
+# SSH Access Example
+
+From another Linux system:
+
+```bash
+ssh username@ip-address
+```
+
+Example:
+
+```bash
+ssh alif@192.168.1.5
 ```
 
 ---
 
 # Common Problems
 
-## Black Screen
-- Increase Video Memory from VM Settings
-- Disable 3D Acceleration
+## Internet Not Working
+- Go to:
+  - VM Settings → Network
+- Enable:
+  - NAT Adapter
+
+---
 
 ## Slow Performance
-- Increase RAM
-- Increase CPU cores from Settings → System → Processor
+- Increase:
+  - RAM
+  - CPU cores
 
-## No Fullscreen
-- Install Guest Additions
+---
+
+## Login Failed
+- Check username/password carefully
+- Linux passwords are case-sensitive
 
 ---
 
 # Conclusion
 
-Using Ubuntu in VirtualBox is one of the safest and easiest ways to learn Linux without changing your main operating system.
+Ubuntu 22.04 LTS Server is stable, lightweight, and widely used for servers, networking, cybersecurity, and development environments.
