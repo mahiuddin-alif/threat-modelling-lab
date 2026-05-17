@@ -1,117 +1,242 @@
-# Ubuntu Setup Guide
+# Ubuntu Setup Using VirtualBox
 
-## What is Ubuntu?
-Ubuntu is a popular Linux operating system that is free, secure, and beginner-friendly.
+## What is VirtualBox?
+VirtualBox is a free virtualization software that allows you to run another operating system inside your current OS.
+
+Example:
+- Run Ubuntu inside Windows
+- Run Linux without deleting Windows
 
 ---
 
-# System Requirements
+# Requirements
 
-- 4 GB RAM or more
+- 8 GB RAM recommended
 - 25 GB free storage
-- Dual-core processor
-- USB drive (8 GB or larger)
+- Stable internet connection
+- VirtualBox software
+- Ubuntu ISO file
 
 ---
 
-# Step 1: Download Ubuntu
+# Step 1: Download VirtualBox
 
-Go to the official Ubuntu website:
+Download from the official website:
+
+https://www.virtualbox.org/
+
+Install it like normal software.
+
+---
+
+# Step 2: Download Ubuntu ISO
+
+Download Ubuntu Desktop ISO:
 
 https://ubuntu.com/download/desktop
 
-Download the latest LTS version.
+Recommended:
+- Ubuntu LTS version
 
 ---
 
-# Step 2: Create a Bootable USB
+# Step 3: Create a New Virtual Machine
 
-You can use software like:
+1. Open VirtualBox
+2. Click **New**
+3. Enter:
+   - Name: Ubuntu
+   - Type: Linux
+   - Version: Ubuntu (64-bit)
 
-- Rufus (Windows)
-- Balena Etcher
-- Ventoy
-
-## Using Rufus
-
-1. Insert USB drive
-2. Open Rufus
-3. Select Ubuntu ISO file
-4. Click **Start**
-5. Wait until completed
+Click **Next**
 
 ---
 
-# Step 3: Boot From USB
+# Step 4: Allocate RAM
 
-1. Restart your PC
-2. Open Boot Menu using:
-   - F12
-   - ESC
-   - DEL
-   - F9  
-   (depends on motherboard/laptop)
-3. Select the USB drive
+Recommended:
+- Minimum: 4096 MB (4 GB)
+- Better Performance: 8192 MB (8 GB)
+
+Click **Next**
 
 ---
 
-# Step 4: Install Ubuntu
+# Step 5: Create Virtual Hard Disk
 
-After booting:
+1. Select:
+   - **Create a virtual hard disk now**
+2. Click **Create**
+
+### Choose:
+- VDI (VirtualBox Disk Image)
+
+Click **Next**
+
+### Storage Type:
+- Dynamically allocated
+
+Click **Next**
+
+### Disk Size:
+- Recommended: 25 GB or more
+
+Click **Create**
+
+---
+
+# Step 6: Attach Ubuntu ISO
+
+1. Select your Ubuntu VM
+2. Click **Settings**
+3. Go to **Storage**
+4. Under Controller IDE/SATA:
+   - Click Empty
+   - Click CD icon
+   - Choose Ubuntu ISO file
+
+Click **OK**
+
+---
+
+# Step 7: Start Ubuntu VM
+
+1. Select Ubuntu VM
+2. Click **Start**
+
+Ubuntu installer will boot.
+
+---
+
+# Step 8: Install Ubuntu
 
 1. Select **Install Ubuntu**
 2. Choose language
-3. Connect to Wi-Fi (optional)
-4. Select:
-   - Normal Installation
-5. Check:
-   - Install third-party software
+3. Select keyboard layout
+4. Connect internet (optional)
 
 ---
 
-# Step 5: Disk Setup
+# Step 9: Installation Type
 
-You have two options:
+Choose:
 
-## Option 1: Erase Disk and Install Ubuntu
-- Removes everything from the drive
-- Recommended for new users
+- **Erase disk and install Ubuntu**
 
-## Option 2: Install Alongside Windows
-- Dual boot setup
-- Keeps Windows and Ubuntu together
+Do not worry:
+- It only erases the virtual disk
+- Your real Windows files remain safe
+
+Click **Install Now**
 
 ---
 
-# Step 6: Create User Account
+# Step 10: Create User Account
 
-Fill in:
-
+Enter:
 - Your Name
-- Computer Name
 - Username
 - Password
 
-Then click **Continue**.
+Click **Continue**
 
 ---
 
-# Step 7: Finish Installation
+# Step 11: Finish Installation
 
-1. Wait for installation to complete
+1. Wait for installation
 2. Click **Restart Now**
-3. Remove USB drive when asked
+3. Press Enter if needed
 
 Ubuntu setup is complete.
 
 ---
 
-# Basic Commands
+# Step 12: Install VirtualBox Guest Additions
+
+Guest Additions improve:
+- Screen resolution
+- Fullscreen support
+- Mouse integration
+- Clipboard sharing
+
+## Install Steps
+
+From VirtualBox menu:
+
+```text
+Devices → Insert Guest Additions CD Image
+```
+
+Then run in Ubuntu terminal:
+
+```bash
+sudo apt update
+sudo apt install build-essential dkms linux-headers-$(uname -r)
+```
+
+Mount and install Guest Additions:
+
+```bash
+sudo mkdir /media/cdrom
+sudo mount /dev/cdrom /media/cdrom
+sudo /media/cdrom/VBoxLinuxAdditions.run
+```
+
+Restart Ubuntu:
+
+```bash
+sudo reboot
+```
+
+---
+
+# Useful Ubuntu Commands
 
 ```bash
 pwd       # Show current directory
 ls        # List files
 cd        # Change directory
 mkdir     # Create folder
-rm        # Remove file
 clear     # Clear terminal
+```
+
+---
+
+# Update Ubuntu
+
+```bash
+sudo apt update
+sudo apt upgrade
+```
+
+---
+
+# Install Basic Software
+
+```bash
+sudo apt install git
+sudo apt install vlc
+```
+
+---
+
+# Common Problems
+
+## Black Screen
+- Increase Video Memory from VM Settings
+- Disable 3D Acceleration
+
+## Slow Performance
+- Increase RAM
+- Increase CPU cores from Settings → System → Processor
+
+## No Fullscreen
+- Install Guest Additions
+
+---
+
+# Conclusion
+
+Using Ubuntu in VirtualBox is one of the safest and easiest ways to learn Linux without changing your main operating system.
