@@ -1066,4 +1066,209 @@ done
 Create chronological timeline of events:
 
 ```bash
-awk '{print $4, $1,
+awk '{print $4, $1, $7}' access.log | sed 's/\[//;s/\]//' | sort > timeline.txt
+```
+
+## Challenge 3: GeoIP Analysis
+
+Install and use geoip tools:
+
+```bash
+# Install geoip tools
+sudo apt install geoip-bin geoip-database -y
+
+# Get country for IP
+geoiplookup 203.0.113.45
+
+# Extract top countries
+awk '{print $1}' access.log | sort -u | while read ip; do
+    geoiplookup $ip | cut -d: -f2
+done | sort | uniq -c | sort -nr | head -10
+```
+
+## Challenge 4: Create Visualization
+
+Use gnuplot to generate charts:
+
+```bash
+# Install gnuplot
+sudo apt install gnuplot -y
+
+# Create hourly data
+for hour in {00..23}; do
+    count=$(grep -c ":${hour}:" access.log)
+    echo "$hour $count"
+done > hourly_data.txt
+
+# Create gnuplot script
+cat > plot_script.gp << 'EOF'
+set terminal png size 800,400
+set output 'traffic_chart.png'
+set title 'Hourly Traffic Distribution'
+set xlabel 'Hour (UTC)'
+set ylabel 'Request Count'
+set style data linespoints
+plot 'hourly_data.txt' using 1:2 title 'Requests'
+EOF
+
+gnuplot plot_script.gp
+```
+
+## Challenge 5: Extract IOCs for SIEM
+
+Create threat intelligence feed:
+
+```bash
+cat > outputs/iocs.csv << 'EOF'
+Indicator,Type,Confidence,FirstSeen,LastSeen
+EOF
+
+# Extract malicious IPs
+grep -iE "(union|select|drop|<script|nikto)" access.log | \
+    awk '{print $1, "IP", "High"}' >> outputs/iocs.csv
+```
+
+---
+
+# Helpful Command Reference
+
+## Quick Reference Table
+
+| Task | Command |
+|------|---------|
+| Count total lines | `wc -l access.log` |
+| Unique IPs | `awk '{print $1}' access.log \| sort -u \| wc -l` |
+| Top 10 IPs | `awk '{print $1}' access.log \| sort \| uniq -c \| sort -nr \| head` |
+| 404 errors | `awk '$9 == 404' access.log \| wc -l` |
+| SQLi attempts | `grep -ciE "(union\|select\|drop)" access.log` |
+| XSS attempts | `grep -ciE "(<script\|alert\()" access.log` |
+| Scanner IPs | `grep -i "nikto" access.log \| awk '{print $1}' \| sort -u` |
+| Hourly traffic | `awk '{print $4}' access.log \| cut -d: -f2 \| sort \| uniq -c` |
+| Bandwidth total | `awk '{sum+=$10} END {print sum/1024/1024 " MB"}' access.log` |
+| POST requests | `grep -c '"POST' access.log` |
+
+## One-Liner Threat Hunt
+
+```bash
+# Comprehensive threat hunt - look for multiple indicators
+grep -E "(\.\./|union.*select|<script|nikto|nmap|DROP TABLE)" access.log | \
+    awk '{print $1, $7, $9, $12, $13, $14}' | \
+    sort -u | \
+    tee outputs/threat_hunt_results.txt
+```
+
+---
+
+# Troubleshooting
+
+## Common Issues
+
+| Problem | Solution |
+|---------|----------|
+| `awk: command not found` | Install gawk: `sudo apt install gawk` |
+| Permission denied | Use `sudo` or check file permissions |
+| File not found | Verify path: `ls -la access.log` |
+| Empty results | Check log format, adjust field positions |
+| grep: invalid option | Some versions need `-E` for extended regex |
+
+## Log Format Variations
+
+If your log uses different format, adjust field numbers:
+
+```bash
+# Check your log format
+head -1 access.log
+
+# Common variations
+# Combined: $1=IP, $6=Method, $7=URL, $9=Status
+# Common: $1=IP, $5=Method, $6=URL, $8=Status
+```
+
+---
+
+# Learning Resources
+
+## Official Documentation
+- [Apache Log Files](https://httpd.apache.org/docs/2.4/logs.html)
+- [GNU Grep Manual](https://www.gnu.org/software/grep/manual/)
+- [GNU Awk Guide](https://www.gnu.org/software/gawk/manual/)
+
+## Security References
+- [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
+- [MITRE ATT&CK - Web Logs](https://attack.mitre.org/techniques/T1560/)
+
+## Practice Resources
+- [Sample Logs Repository](https://github.com/logpai/loghub)
+- [SecRepo - Security Samples](https://github.com/InQuest/sample-data)
+
+---
+
+# Estimated Completion Time
+
+| Section | Time |
+|---------|------|
+| Setup & Basic Commands | 30 min |
+| Basic Analysis (Ex1-5) | 30 min |
+| Threat Hunting (Ex6-9) | 30 min |
+| Advanced Analysis (Ex10-13) | 20 min |
+| Data Transformation (Ex14-17) | 15 min |
+| Report Writing | 30 min |
+| Bonus Challenges | 30-60 min |
+| **Total** | **2.5-3.5 hours** |
+
+---
+
+# Learning Outcomes
+
+After completing this lab, you will be able to:
+
+### Technical Skills
+- ✅ Parse and analyze Apache access logs
+- ✅ Use grep, awk, sed for log analysis
+- ✅ Detect common web attacks (SQLi, XSS, traversal)
+- ✅ Identify malicious IP addresses and scanners
+- ✅ Create automated analysis scripts
+- ✅ Generate professional investigation reports
+
+### Security Skills
+- ✅ Understand web attack patterns
+- ✅ Recognize attacker behavior in logs
+- ✅ Perform threat hunting exercises
+- ✅ Create threat intelligence from logs
+- ✅ Implement security monitoring practices
+
+### Career Skills
+- ✅ Conduct SOC investigations
+- ✅ Write incident reports
+- ✅ Present findings to stakeholders
+- ✅ Document security procedures
+
+---
+
+# Author
+
+**Cyber Security Log Analysis Practice Lab**
+
+*Version 1.0 | Updated: February 2026*
+
+---
+
+## License
+
+This lab is for educational purposes only. Use responsibly on your own systems or with explicit permission.
+
+---
+
+**Good luck with your investigation!** 🔍
+```
+
+This enhanced version includes:
+- Detailed field breakdowns with examples
+- Security insight tables and risk levels
+- Comprehensive threat hunting patterns
+- Automation script for analysis
+- Complete report template
+- Bonus challenges with geoip and visualization
+- Quick reference cheat sheet
+- Troubleshooting guide
+- Learning outcomes and resources
