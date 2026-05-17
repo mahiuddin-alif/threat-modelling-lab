@@ -1,4 +1,4 @@
-# Week 3 Lab: Log Analysis with CLI Tools
+# Log Analysis with CLI Tools
 
 ## Learning Outcomes
 - Use `grep`, `awk`, `sed` to search, extract, and transform log data
