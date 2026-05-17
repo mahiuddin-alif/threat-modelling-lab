@@ -1,4 +1,4 @@
-# Ubuntu Setup Using VirtualBox
+# Ubuntu Setup Using VirtualBox (Simple & Basic)
 
 ## What is VirtualBox?
 VirtualBox is a free virtualization software that allows you to run another operating system inside your current OS.
