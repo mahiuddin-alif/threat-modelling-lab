@@ -1,32 +1,31 @@
-# How to Use WinSCP for File Sharing
+# How to Use WinSCP with Kali Linux for File Sharing
 
 ## What is WinSCP?
 
-WinSCP is a free file transfer software for Windows used to securely transfer files between:
+WinSCP is a free Windows application used for secure file transfer between:
 
-- Windows PC
-- Linux Server
-- Ubuntu Virtual Machine
-- Remote Servers
+- Windows
+- Kali Linux
+- Ubuntu/Linux servers
+- Virtual machines
 
 It supports:
-- SCP
 - SFTP
+- SCP
 - FTP
-- WebDAV
 
-WinSCP is commonly used with SSH for secure file sharing.
+WinSCP mainly uses SSH for secure communication.
 
 ---
 
 # Requirements
 
-Before using WinSCP, make sure you have:
+Before starting, you need:
 
-- Windows computer
-- Ubuntu/Linux server or VM
-- Internet or local network connection
-- SSH enabled on Linux server
+- Windows PC
+- Kali Linux installed (VirtualBox or VMware)
+- WinSCP installed on Windows
+- SSH enabled on Kali Linux
 
 ---
 
@@ -36,22 +35,47 @@ Official Website:
 
 https://winscp.net/
 
-Download and install WinSCP normally.
+Install WinSCP normally on Windows.
 
 ---
 
-# Step 2: Install OpenSSH Server on Ubuntu
+# Step 2: Update Kali Linux
 
-Open Ubuntu terminal and run:
+Open Kali terminal and run:
 
 ```bash
-sudo apt update
+sudo apt update && sudo apt upgrade -y
+```
+
+---
+
+# Step 3: Install OpenSSH Server on Kali
+
+Install SSH server:
+
+```bash
 sudo apt install openssh-server -y
 ```
 
 ---
 
-# Step 3: Check SSH Status
+# Step 4: Start SSH Service
+
+Run:
+
+```bash
+sudo systemctl start ssh
+```
+
+Enable SSH at boot:
+
+```bash
+sudo systemctl enable ssh
+```
+
+---
+
+# Step 5: Check SSH Status
 
 Run:
 
@@ -59,7 +83,7 @@ Run:
 sudo systemctl status ssh
 ```
 
-If SSH is running, you will see:
+If working properly, you will see:
 
 ```text
 active (running)
@@ -67,7 +91,7 @@ active (running)
 
 ---
 
-# Step 4: Find Ubuntu IP Address
+# Step 6: Find Kali Linux IP Address
 
 Run:
 
@@ -75,47 +99,64 @@ Run:
 hostname -I
 ```
 
-Example output:
+Example:
 
 ```text
-192.168.1.15
+192.168.1.20
 ```
 
 Save this IP address.
 
 ---
 
-# Step 5: Open WinSCP
+# Step 7: Configure VirtualBox Network
 
-Launch WinSCP on Windows.
+If using VirtualBox:
 
-You will see the Login window.
+Go to:
+
+```text
+VirtualBox → Settings → Network
+```
+
+Recommended:
+- Adapter 1 → Bridged Adapter
+
+OR
+
+- NAT Adapter
 
 ---
 
-# Step 6: Configure Connection
+# Step 8: Open WinSCP
 
-Enter the following information:
+Launch WinSCP on Windows.
+
+---
+
+# Step 9: Configure WinSCP Connection
+
+Enter the following:
 
 | Field | Value |
 |------|------|
 | File Protocol | SFTP |
-| Host Name | Ubuntu IP Address |
+| Host Name | Kali IP Address |
 | Port Number | 22 |
-| User Name | Ubuntu Username |
-| Password | Ubuntu Password |
+| User Name | Kali Username |
+| Password | Kali Password |
 
 Example:
 
 | Field | Example |
 |------|------|
-| Host Name | 192.168.1.15 |
-| User Name | alif |
-| Password | yourpassword |
+| Host Name | 192.168.1.20 |
+| User Name | kali |
+| Password | kali |
 
 ---
 
-# Step 7: Login to Ubuntu Server
+# Step 10: Login to Kali Linux
 
 Click:
 
@@ -124,30 +165,28 @@ Login
 ```
 
 First time connection:
-- WinSCP shows SSH security warning
+- Security warning appears
 - Click:
   - Accept
 
 ---
 
-# Step 8: Understanding WinSCP Interface
+# Step 11: WinSCP Interface
 
-WinSCP uses dual panels:
+WinSCP has two panels:
 
-| Left Side | Right Side |
-|-----------|------------|
-| Windows Files | Ubuntu/Linux Files |
-
-This allows easy drag-and-drop file transfer.
+| Left Panel | Right Panel |
+|------------|-------------|
+| Windows Files | Kali Linux Files |
 
 ---
 
-# Step 9: Upload Files to Ubuntu
+# Step 12: Upload Files to Kali
 
 To upload:
 
-1. Select file from left panel
-2. Drag file to right panel
+1. Select file from left side
+2. Drag to right side
 
 OR
 
@@ -157,16 +196,14 @@ Click:
 Upload
 ```
 
-File will be transferred to Ubuntu server.
-
 ---
 
-# Step 10: Download Files from Ubuntu
+# Step 13: Download Files from Kali
 
 To download:
 
-1. Select file from right panel
-2. Drag file to left panel
+1. Select file from right side
+2. Drag to left side
 
 OR
 
@@ -178,9 +215,9 @@ Download
 
 ---
 
-# Step 11: Create Folder
+# Step 14: Create Folders
 
-Right click inside WinSCP panel:
+Right click inside WinSCP:
 
 ```text
 New → Directory
@@ -190,22 +227,26 @@ Enter folder name.
 
 ---
 
-# Step 12: Edit Files Directly
+# Step 15: Edit Files Directly
 
-1. Right click file
+1. Right click a file
 2. Select:
    - Edit
 
-WinSCP opens file in text editor.
-
 After saving:
-- WinSCP automatically uploads updated file.
+- WinSCP automatically updates the file on Kali Linux.
 
 ---
 
-# Step 13: Enable Root Access (Optional)
+# Step 16: Access Root Directory (Optional)
 
-By default, root login may be disabled.
+Open terminal:
+
+```bash
+sudo passwd root
+```
+
+Set root password.
 
 Edit SSH configuration:
 
@@ -233,18 +274,18 @@ sudo systemctl restart ssh
 
 ---
 
-# Step 14: Common Linux Directories
+# Common Kali Linux Directories
 
 | Directory | Purpose |
 |-----------|---------|
-| /home | User files |
-| /var/www/html | Website files |
+| /home/kali | User files |
 | /etc | Configuration files |
 | /var/log | Log files |
+| /usr/share | Installed tools |
 
 ---
 
-# Useful SSH Commands
+# Useful Commands
 
 ## Restart SSH
 
@@ -254,18 +295,18 @@ sudo systemctl restart ssh
 
 ---
 
-## Check SSH Status
+## Check IP Address
 
 ```bash
-sudo systemctl status ssh
+ip a
 ```
 
 ---
 
-## Check Open Ports
+## Check SSH Port
 
 ```bash
-sudo ss -tulnp
+sudo ss -tulnp | grep ssh
 ```
 
 ---
@@ -274,25 +315,11 @@ sudo ss -tulnp
 
 ## Connection Refused
 
-Possible reasons:
-- SSH not installed
-- SSH service stopped
-- Wrong IP address
-
 Solution:
 
 ```bash
 sudo systemctl start ssh
 ```
-
----
-
-## Timeout Error
-
-Check:
-- Firewall
-- VM Network Adapter
-- Correct IP address
 
 ---
 
@@ -305,35 +332,25 @@ Check:
 
 ---
 
-# VirtualBox Network Settings
+## Timeout Error
 
-For Ubuntu VM:
-
-Go to:
-
-```text
-VirtualBox → Settings → Network
-```
-
-Recommended:
-- Adapter 1 → NAT
-
-OR
-
-- Bridged Adapter (for direct local network access)
+Check:
+- VM network settings
+- Firewall
+- Correct IP address
 
 ---
 
-# Advantages of WinSCP
+# Advantages of Using WinSCP
 
-- Easy file transfer
-- Secure communication
+- Secure file transfer
 - Drag-and-drop support
-- Supports SSH/SFTP
-- Simple interface
+- Easy remote file management
+- Works with Kali Linux via SSH
+- Simple user interface
 
 ---
 
 # Conclusion
 
-WinSCP is one of the easiest and most secure ways to transfer files between Windows and Ubuntu/Linux systems using SSH and SFTP.
+WinSCP is a simple and secure way to transfer files between Windows and Kali Linux using SFTP and SSH.
